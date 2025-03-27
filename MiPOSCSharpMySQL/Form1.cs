@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MiPOSCSharpMySQL.Formularios;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -28,44 +29,67 @@ namespace MiPOSCSharpMySQL
         private void almacenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Formularios.FormProductos objetoFormProductos = new Formularios.FormProductos();
-            objetoFormProductos.Show();
+            AbrirFormulario(new FormProductos());
+            //objetoFormProductos.Show();
         }
 
         private void venderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Formularios.FormVentas objetoFormVentas = new Formularios.FormVentas();
-            objetoFormVentas.Show();
+            AbrirFormulario(new FormVentas());
+             //objetoFormVentas.Show();
         }
 
         private void registroToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Formularios.FormReportePorFechas objetoFormReportePorFechas = new Formularios.FormReportePorFechas();
-            objetoFormReportePorFechas.Show();
+            AbrirFormulario(new FormReportePorFechas());
+            //objetoFormReportePorFechas.Show();
         }
 
         private void clientesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Formularios.FormClientes objetoFormClientes = new Formularios.FormClientes();
-            objetoFormClientes.Show();
+            AbrirFormulario(new FormClientes());
+            //objetoFormClientes.Show();
         }
 
         private void almacenToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             Formularios.FormAlmacen objetoFormAlmacen = new Formularios.FormAlmacen();
-            objetoFormAlmacen.Show();
+            AbrirFormulario(new FormAlmacen());
+            //objetoFormAlmacen.Show();
         }
 
         private void buscarComprobanteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Formularios.FormBuscarComprobante objetoFormBuscarComprobante = new Formularios.FormBuscarComprobante();
-            objetoFormBuscarComprobante.Show();
+            AbrirFormulario(new FormBuscarComprobante());
+            //objetoFormBuscarComprobante.Show();
         }
 
         private void ayudaToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
             MessageBox.Show("Llama a los siguientes encargados del sistema de ventas: Yuber Ern. Santana Polanco Whatsapp: Yuber Ern. Santana Lizardo Whatsapp: 849-438-0242");
 
-
         }
+
+        private void AbrirFormulario(Form formularioHijo)
+        {
+            // Cerrar el formulario actual si hay uno abierto
+                            
+            foreach (Form form in this.MdiChildren)
+            {
+               form.Close();
+            }
+
+            // Configurar el formulario hijo
+
+            formularioHijo.MdiParent = this;
+         // formularioHijo.Dock = DockStyle.Fill; // Hace que ocupe todo el espacio disponible
+            formularioHijo.Show();
+        }
+
     }
 }

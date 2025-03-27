@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormBuscarComprobante));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnbuscar = new System.Windows.Forms.Button();
             this.txtnumerofactura = new System.Windows.Forms.TextBox();
@@ -175,7 +176,7 @@
             // 
             this.lblapmaterno.AutoSize = true;
             this.lblapmaterno.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblapmaterno.Location = new System.Drawing.Point(373, 50);
+            this.lblapmaterno.Location = new System.Drawing.Point(368, 50);
             this.lblapmaterno.Name = "lblapmaterno";
             this.lblapmaterno.Size = new System.Drawing.Size(43, 18);
             this.lblapmaterno.TabIndex = 6;
@@ -245,7 +246,7 @@
             // 
             this.label13.AutoSize = true;
             this.label13.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(368, 419);
+            this.label13.Location = new System.Drawing.Point(353, 419);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(52, 21);
             this.label13.TabIndex = 9;
@@ -255,7 +256,7 @@
             // 
             this.lbltotal.AutoSize = true;
             this.lbltotal.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbltotal.Location = new System.Drawing.Point(426, 419);
+            this.lbltotal.Location = new System.Drawing.Point(411, 419);
             this.lbltotal.Name = "lbltotal";
             this.lbltotal.Size = new System.Drawing.Size(44, 20);
             this.lbltotal.TabIndex = 10;
@@ -277,6 +278,7 @@
             this.Controls.Add(this.label4);
             this.Controls.Add(this.lblfechaventa);
             this.Controls.Add(this.lblnumerofactura);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormBuscarComprobante";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

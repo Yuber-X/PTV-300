@@ -103,6 +103,9 @@ namespace MiPOSCSharpMySQL.Controlador
                     modelo.Rows.Add(nombreProducto, cantidad, precioVenta, subtotal);
                 }
 
+                tablaTotalProductos.DataSource = modelo;
+
+
                 double totalIVA = totalFactura * valorIVA;
 
                 iva.Text = totalIVA.ToString("N", formato);

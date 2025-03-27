@@ -95,6 +95,10 @@ namespace MiPOSCSharpMySQL.Formularios
         {
 
         }
+        private void txtApPaterno_TextChanged(object sender, EventArgs e)
+        {
+
+        }
 
 
         /*----------------------------------------------------------------------------------------------------------------------*/
@@ -157,5 +161,6 @@ namespace MiPOSCSharpMySQL.Formularios
                                            txtIdProducto, txtNombreProducto, txtPrecio, txtStock, txtPrecioVentaFinal, txtStockVenta, dgvCarrito, lbIva, lbTotal);
             objetoVenta.MostrarUltimaFactura(lbUltimaFactura);
         }
+
     }
 }
