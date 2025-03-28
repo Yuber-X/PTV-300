@@ -154,12 +154,46 @@ namespace MiPOSCSharpMySQL.Formularios
 
         private void btnFacturar_Click(object sender, EventArgs e)
         {
+            //Controlador.ControladorVenta objetoVenta = new Controlador.ControladorVenta();
+            //objetoVenta.CrearFactura(txtIdCliente);
+
+            //objetoVenta.RealizarVentaV2(dgvCarrito,idFactura:0); //OJO
+
+            //objetoVenta.LimpiarCamposVenta(txtBuscarCliente, dgvCliente,txtBuscarProducto,dgvProducto,txtIdCliente,txtNombreCliente, txtApPaterno, txtApMaterno, 
+            //                               txtIdProducto, txtNombreProducto, txtPrecio, txtStock, txtPrecioVentaFinal, txtStockVenta, dgvCarrito, lbIva, lbTotal);
+            //objetoVenta.MostrarUltimaFactura(lbUltimaFactura);
+
+            Controlador.ControladorReporte objetoReporte = new Controlador.ControladorReporte();
             Controlador.ControladorVenta objetoVenta = new Controlador.ControladorVenta();
-            objetoVenta.CrearFactura(txtIdCliente);
-            objetoVenta.RealizarVenta(dgvCarrito);
-            objetoVenta.LimpiarCamposVenta(txtBuscarCliente, dgvCliente,txtBuscarProducto,dgvProducto,txtIdCliente,txtNombreCliente, txtApPaterno, txtApMaterno, 
-                                           txtIdProducto, txtNombreProducto, txtPrecio, txtStock, txtPrecioVentaFinal, txtStockVenta, dgvCarrito, lbIva, lbTotal);
+
+            // Creamos la factura y obtenemos su ID
+            long idFactura = objetoVenta.CrearFacturaV2(txtIdCliente);
+
+            // Si hubo un error, terminamos
+            if (idFactura == -1) return;
+
+            // Registramos los productos vendidos
+            objetoVenta.RealizarVentaV2(dgvCarrito, idFactura);
+
+
+            // Limpiamos la pantalla
+            objetoVenta.LimpiarCamposVenta(txtBuscarCliente, dgvCliente, txtBuscarProducto, dgvProducto, txtIdCliente, txtNombreCliente,
+                                            txtApPaterno, txtApMaterno, txtIdProducto, txtNombreProducto, txtPrecio, txtStock,
+                                            txtPrecioVentaFinal, txtStockVenta, dgvCarrito, lbIva, lbTotal);
+
+            // Mostramos la última factura generada
             objetoVenta.MostrarUltimaFactura(lbUltimaFactura);
+
+            // Imprimimos la factura
+            if (long.TryParse(lbUltimaFactura.Text, out long ultimaFactura))
+            {
+                objetoReporte.ImprimirFactura(ultimaFactura); // Ahora acepta long directamente
+            }
+            else
+            {
+                MessageBox.Show("Error al obtener el número de la última factura.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        
         }
 
     }

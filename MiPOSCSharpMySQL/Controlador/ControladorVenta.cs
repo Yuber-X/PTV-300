@@ -269,27 +269,6 @@ namespace MiPOSCSharpMySQL.Controlador
                 MessageBox.Show("Error al mostrar Datos" + e.ToString());
             }
         }
-        public void EliminarSeleccion(DataGridView tablaResumen)
-        {
-
-            try
-            {
-                int indiceSeleccion = tablaResumen.CurrentRow.Index;
-
-                if (indiceSeleccion >= 0)
-                {
-                    tablaResumen.Rows.RemoveAt(indiceSeleccion);
-                }
-                else
-                {
-                    MessageBox.Show("Seleccione una fila para eliminar");
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Hubo un error al eliminar: " + e);
-            }
-        }
         public void CalcularTotal(DataGridView tablaResumen, Label IVA, Label totalPagar)
         {
             double totalSubtotal = 0;
@@ -311,6 +290,29 @@ namespace MiPOSCSharpMySQL.Controlador
             totalPagar.Text = totalSubtotal.ToString("N",formato);
             IVA.Text = totalIva.ToString("N",formato);
         }
+        public void EliminarSeleccion(DataGridView tablaResumen)
+        {
+
+            try
+            {
+                int indiceSeleccion = tablaResumen.CurrentRow.Index;
+
+                if (indiceSeleccion >= 0)
+                {
+                    tablaResumen.Rows.RemoveAt(indiceSeleccion);
+                }
+                else
+                {
+                    MessageBox.Show("Seleccione una fila para eliminar");
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Hubo un error al eliminar: " + e);
+            }
+        }
+
+        /*---------------------------------------------------------------*/
         public void CrearFactura(TextBox codCliente) 
         {
             Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
@@ -341,6 +343,33 @@ namespace MiPOSCSharpMySQL.Controlador
                 objetoConexion.CerrarConexion();
             }
         }
+        public long CrearFacturaV2(TextBox codCliente)
+        {
+            Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
+            Modelos.ModeloCliente objetoCliente = new Modelos.ModeloCliente();
+
+            string consulta = "INSERT INTO factura (fechaFactura, fkCliente) VALUES (CURDATE(), @fkCliente); SELECT LAST_INSERT_ID();";
+
+            try
+            {
+                objetoCliente.IdCliente = long.Parse(codCliente.Text);
+
+                using (MySqlConnection conexion = objetoConexion.estableceConexion())
+                using (MySqlCommand comando = new MySqlCommand(consulta, conexion))
+                {
+                    comando.Parameters.AddWithValue("@fkCliente", objetoCliente.IdCliente);
+                    long idFactura = Convert.ToInt64(comando.ExecuteScalar()); // Obtenemos el ID de la factura creada
+                    return idFactura;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al crear factura: " + ex.Message);
+                return -1;
+            }
+        }
+        
+
         public void RealizarVenta(DataGridView tablaResumenVenta)
         {
             Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
@@ -395,12 +424,63 @@ namespace MiPOSCSharpMySQL.Controlador
                 objetoConexion.CerrarConexion();
             }
         }
+        public void RealizarVentaV2(DataGridView tablaResumenVenta, long idFactura)
+        {
+            if (idFactura == -1) return; // Si hubo un error en la factura, no continuamos
+
+            Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
+
+            string consultaDetalle = "INSERT INTO detalle (fkfactura, fkproducto, cantidad, precioVenta) VALUES (@fkfactura, @fkproducto, @cantidad, @precioVenta);";
+            string consultaStock = "UPDATE producto SET stock = stock - @cantidad WHERE idproducto = @idproducto;";
+
+            try
+            {
+                using (MySqlConnection conexion = objetoConexion.estableceConexion())
+                {
+                    foreach (DataGridViewRow row in tablaResumenVenta.Rows)
+                    {
+                        if (row.Cells[0].Value != null)
+                        {
+                            long idProducto = Convert.ToInt64(row.Cells[0].Value);
+                            int cantidad = Convert.ToInt32(row.Cells[3].Value);
+                            double precioVenta = Convert.ToDouble(row.Cells[2].Value);
+
+                            using (MySqlCommand comandoDetalle = new MySqlCommand(consultaDetalle, conexion))
+                            {
+                                comandoDetalle.Parameters.AddWithValue("@fkfactura", idFactura);
+                                comandoDetalle.Parameters.AddWithValue("@fkproducto", idProducto);
+                                comandoDetalle.Parameters.AddWithValue("@cantidad", cantidad);
+                                comandoDetalle.Parameters.AddWithValue("@precioVenta", precioVenta);
+                                comandoDetalle.ExecuteNonQuery();
+                            }
+
+                            using (MySqlCommand comandoStock = new MySqlCommand(consultaStock, conexion))
+                            {
+                                comandoStock.Parameters.AddWithValue("@cantidad", cantidad);
+                                comandoStock.Parameters.AddWithValue("@idproducto", idProducto);
+                                comandoStock.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+
+                MessageBox.Show("Venta realizada con éxito.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al realizar la venta: " + ex.Message);
+            }
+        }
+
+
+        /*---------------------------------------------------------------*/
+
         public void MostrarUltimaFactura(Label ultimaFactura)
         {
 
             Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
 
-            string consulta = "Select max(idfactura) as ultimaFactura from factura;\r\n";
+            string consulta = "Select max(idfactura) as ultimaFactura from factura;";
 
             try
             {
@@ -424,7 +504,6 @@ namespace MiPOSCSharpMySQL.Controlador
                 objetoConexion.CerrarConexion();
             }
         }
-
 
     }
 }

@@ -1,5 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Drawing;
+using System.Drawing.Printing;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -8,11 +10,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using System.Data.SqlClient;
 
 namespace MiPOSCSharpMySQL.Controlador
 {
     internal class ControladorReporte
     {
+        private int idFactura;
+        Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
+        private Bitmap facturaImagen;
+
         public void MostrarDatosFactura(TextBox numeroFactura, Label numeroFacturaEncontrado, Label fechaFacturaEncontrado,
                                         Label nombreClienteEncontrado, Label appaternoEncontrado, Label apmaternoEncontrado) 
         {
@@ -122,6 +129,8 @@ namespace MiPOSCSharpMySQL.Controlador
             }
         }
 
+        /*-----------------------------------------------------------------------------------------------------------------------------------*/
+
         public void MostrarVentaPorFecha(DateTimePicker desde, DateTimePicker hasta, DataGridView tablaVenta, Label totalGenaral)
         {
 
@@ -202,5 +211,107 @@ namespace MiPOSCSharpMySQL.Controlador
             }
         }
 
+        /*-----------------------------------------------------------------------------------------------------------------------------------*/
+
+        public DataTable ObtenerFactura(long numeroFactura)
+        {
+            Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
+
+            string consulta = "SELECT factura.idfactura, factura.fechaFactura, cliente.nombres, cliente.appaterno, cliente.appmaterno " +
+                              "FROM factura INNER JOIN cliente ON cliente.idcliente = factura.fkCliente " +
+                              "WHERE factura.idfactura = @idFactura;";
+
+            try
+            {
+                using (MySqlConnection conexion = objetoConexion.estableceConexion())
+                using (MySqlCommand comando = new MySqlCommand(consulta, conexion))
+                {
+                    comando.Parameters.AddWithValue("@idFactura", numeroFactura);
+                    using (MySqlDataAdapter adaptador = new MySqlDataAdapter(comando))
+                    {
+                        DataTable tablaFactura = new DataTable();
+                        adaptador.Fill(tablaFactura);
+                        return tablaFactura;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al obtener factura: " + ex.Message);
+                return null;
+            }
+        }
+
+        public void ImprimirFactura(long idFactura)
+        {
+            DataTable datosFactura = ObtenerDatosFactura(idFactura);
+            if (datosFactura.Rows.Count > 0)
+            {
+                GenerarImagenFactura(datosFactura);
+                PrintDocument pd = new PrintDocument();
+                pd.PrintPage += new PrintPageEventHandler(PrintFactura);
+                pd.Print();
+            }
+            else
+            {
+                Console.WriteLine("No se encontraron datos para la factura.");
+            }
+        }
+
+        private DataTable ObtenerDatosFactura(long idFactura)
+        {
+            DataTable dt = new DataTable();
+            using (MySqlConnection con = objetoConexion.estableceConexion()) 
+            {
+                string query = @"SELECT f.idFactura, c.nombres, c.appaterno, c.appmaterno, p.nombre, d.cantidad, d.precioVenta, 
+                            (SELECT SUM(d.cantidad * d.precioVenta) FROM detalle d WHERE d.fkFactura = f.idFactura) AS TotalFinal
+                            FROM factura f
+                            JOIN cliente c ON f.fkCliente = c.idCliente
+                            JOIN detalle d ON f.idFactura = d.fkFactura
+                            JOIN producto p ON d.fkProducto = p.idProducto
+                            WHERE f.idFactura = @idFactura";
+                using (MySqlCommand cmd = new MySqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@idFactura", idFactura);
+                    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                    da.Fill(dt);
+                }
+            }
+            return dt;
+        }
+
+        private void GenerarImagenFactura(DataTable datosFactura)
+        {
+            int width = 400;
+            int height = 200 + (datosFactura.Rows.Count * 20);
+            facturaImagen = new Bitmap(width, height);
+            using (Graphics g = Graphics.FromImage(facturaImagen))
+            {
+                g.Clear(Color.White);
+                Font font = new Font("Arial", 10);
+                Brush brush = Brushes.Black;
+
+                g.DrawString("Factura ID: " + datosFactura.Rows[0]["idFactura"].ToString(), font, brush, 10, 10);
+                g.DrawString("Cliente: " + datosFactura.Rows[0]["nombres"] + " " + datosFactura.Rows[0]["appaterno"] + " " + datosFactura.Rows[0]["appmaterno"], font, brush, 10, 30);
+
+                int y = 50;
+                g.DrawString("Productos:", font, brush, 10, y);
+                y += 20;
+                foreach (DataRow row in datosFactura.Rows)
+                {
+                    g.DrawString(row["nombre"] + " - Cant: " + row["cantidad"] + " - Precio: " + row["precioVenta"], font, brush, 10, y);
+                    y += 20;
+                }
+                g.DrawString("Total: $" + datosFactura.Rows[0]["TotalFinal"].ToString(), font, brush, 10, y + 10);
+            }
+        }
+
+        private void PrintFactura(object sender, PrintPageEventArgs e)
+        {
+            if (facturaImagen != null)
+            {
+                e.Graphics.DrawImage(facturaImagen, 0, 0);
+            }
+        }
     }
 }
