@@ -152,7 +152,7 @@ namespace MiPOSCSharpMySQL.Formularios
             objetoVenta.EliminarSeleccion(dgvCarrito);
         }
 
-        private void btnFacturar_Click(object sender, EventArgs e)
+        private async void btnFacturar_Click(object sender, EventArgs e)
         {
             //Controlador.ControladorVenta objetoVenta = new Controlador.ControladorVenta();
             //objetoVenta.CrearFactura(txtIdCliente);
@@ -183,6 +183,9 @@ namespace MiPOSCSharpMySQL.Formularios
 
             // Mostramos la última factura generada
             objetoVenta.MostrarUltimaFactura(lbUltimaFactura);
+ 
+            //Esperar que todos los datos se guarden correctamente
+            await Task.Delay(1000);
 
             // Imprimimos la factura
             if (long.TryParse(lbUltimaFactura.Text, out long ultimaFactura))

@@ -86,5 +86,10 @@ namespace MiPOSCSharpMySQL.Formularios
             objetoCliente.MostrarClientes(dgvclientes);
             objetoCliente.LimpiarCampos(txtid, txtnombres, txtappaterno, txtapmaterno);
         }
+
+        private void txtid_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("El ID se Auto-Rellena no es posible modificar.");
+        }
     }
 }

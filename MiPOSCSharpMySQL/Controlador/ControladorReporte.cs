@@ -16,11 +16,10 @@ namespace MiPOSCSharpMySQL.Controlador
 {
     internal class ControladorReporte
     {
-        private int idFactura;
         Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
         private Bitmap facturaImagen;
 
-        public void MostrarDatosFactura(TextBox numeroFactura, Label numeroFacturaEncontrado, Label fechaFacturaEncontrado,
+     /* public void MostrarDatosFactura(TextBox numeroFactura, Label numeroFacturaEncontrado, Label fechaFacturaEncontrado,
                                         Label nombreClienteEncontrado, Label appaternoEncontrado, Label apmaternoEncontrado) 
         {
 
@@ -66,7 +65,7 @@ namespace MiPOSCSharpMySQL.Controlador
             {
                 objetoConexion.CerrarConexion();
             }
-        }
+        } */
         public void MostrarVentaFactura(TextBox numeroFactura, DataGridView tablaTotalProductos, Label iva, Label total)
         {
 

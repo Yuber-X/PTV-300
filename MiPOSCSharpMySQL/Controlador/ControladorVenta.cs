@@ -38,23 +38,36 @@ namespace MiPOSCSharpMySQL.Controlador
 
             try
             {
-                if (nombreProducto.Text == "")
+                // Uso Trim() para eliminar cada espacio del string y luego convertirlo en texto.
+                string filtro = nombreProducto.Text.Trim();
+
+                if (string.IsNullOrEmpty(filtro))
                 {
                     tablaTotalProductos.DataSource = null;
+                    return;
                 }
                 else
                 {
-                    string sql = "select * from producto where producto.nombre LIKE concat('%', @nombre, '%');";
+
+                    string sql;
+
+                    // Reviso si el filtro es numerico o textual, asi buscara el producto por nombre o por ID
+                    if (long.TryParse(filtro, out long  idBuscado))
+                    {
+                        sql = "SELECT * FROM producto WHERE CAST(IdProducto AS CHAR) LIKE CONCAT('%', @filtro, '%');"; 
+                    }
+                    else
+                    {
+                        sql = "select * from producto where producto.nombre LIKE concat('%', @filtro, '%');";
+                    }
 
                     MySqlConnection conexion = objetoConexion.estableceConexion();
 
                     MySqlCommand comando = new MySqlCommand(sql, conexion);
-                    comando.Parameters.AddWithValue("@nombre", nombreProducto.Text);
+                    comando.Parameters.AddWithValue("@filtro", filtro);
 
                     MySqlDataAdapter adaptador = new MySqlDataAdapter(comando);
-
                     DataSet ds = new DataSet();
-
                     adaptador.Fill(ds);
 
                     DataTable dt = ds.Tables[0];
@@ -69,11 +82,12 @@ namespace MiPOSCSharpMySQL.Controlador
                         modelo.Rows.Add(objetoProducto.IdProducto, objetoProducto.NombreProducto, objetoProducto.PrecioProducto, objetoProducto.StockProducto);
                     }
                     tablaTotalProductos.DataSource = modelo;
+
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("Error al mostrar Datos" + e.ToString());
+                MessageBox.Show("Error al mostrar Datos: " + e.ToString());
             }
             finally
             {
@@ -312,37 +326,36 @@ namespace MiPOSCSharpMySQL.Controlador
             }
         }
 
-        /*---------------------------------------------------------------*/
-        public void CrearFactura(TextBox codCliente) 
-        {
-            Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
-            Modelos.ModeloCliente objetoCliente = new Modelos.ModeloCliente();
+        //public void CrearFactura(TextBox codCliente) 
+        //{
+        //    Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
+        //    Modelos.ModeloCliente objetoCliente = new Modelos.ModeloCliente();
 
-            string consulta = "insert into factura (fechaFactura, fkCliente) values (curdate(),@fkCliente);";
+        //    string consulta = "insert into factura (fechaFactura, fkCliente) values (curdate(),@fkCliente);";
 
-            try
-            {
-                objetoCliente.IdCliente = long.Parse(codCliente.Text);
+        //    try
+        //    {
+        //        objetoCliente.IdCliente = long.Parse(codCliente.Text);
 
-                MySqlConnection conexion = objetoConexion.estableceConexion();
+        //        MySqlConnection conexion = objetoConexion.estableceConexion();
 
-                MySqlCommand comando = new MySqlCommand(consulta, conexion);
+        //        MySqlCommand comando = new MySqlCommand(consulta, conexion);
 
-                comando.Parameters.AddWithValue("@fkCliente", objetoCliente.IdCliente);
+        //        comando.Parameters.AddWithValue("@fkCliente", objetoCliente.IdCliente);
 
-                comando.ExecuteNonQuery();
+        //        comando.ExecuteNonQuery();
 
-                MessageBox.Show("Factura Creada");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al guardar | Error: " + ex.ToString());
-            }
-            finally
-            {
-                objetoConexion.CerrarConexion();
-            }
-        }
+        //        MessageBox.Show("Factura Creada");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("Error al guardar | Error: " + ex.ToString());
+        //    }
+        //    finally
+        //    {
+        //        objetoConexion.CerrarConexion();
+        //    }
+        //}
         public long CrearFacturaV2(TextBox codCliente)
         {
             Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
@@ -368,62 +381,61 @@ namespace MiPOSCSharpMySQL.Controlador
                 return -1;
             }
         }
-        
 
-        public void RealizarVenta(DataGridView tablaResumenVenta)
-        {
-            Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
+        //public void RealizarVenta(DataGridView tablaResumenVenta)
+        //{
+        //    Configuracion.CConexion objetoConexion = new Configuracion.CConexion();
             
-            string consultaDetalle = "insert into detalle (fkfactura, fkproducto, cantidad, precioVenta) values ((select max(idfactura) from factura),@fkproducto,@cantidad,@precioVenta);";
-            string consultaStock = "update producto set stock = stock - @cantidad where idproducto = @idproducto;";
+        //    string consultaDetalle = "insert into detalle (fkfactura, fkproducto, cantidad, precioVenta) values ((select max(idfactura) from factura),@fkproducto,@cantidad,@precioVenta);";
+        //    string consultaStock = "update producto set stock = stock - @cantidad where idproducto = @idproducto;";
 
 
-            try
-            {
+        //    try
+        //    {
 
-                MySqlConnection conexion = objetoConexion.estableceConexion();
+        //        MySqlConnection conexion = objetoConexion.estableceConexion();
 
-                MySqlCommand comandoDetalle = new MySqlCommand(consultaDetalle, conexion);
-                MySqlCommand comandoStock = new MySqlCommand(consultaStock, conexion);
+        //        MySqlCommand comandoDetalle = new MySqlCommand(consultaDetalle, conexion);
+        //        MySqlCommand comandoStock = new MySqlCommand(consultaStock, conexion);
 
 
-                foreach (DataGridViewRow row in tablaResumenVenta.Rows)
-                {
-                    if (row.Cells[0].Value != null)
-                    {
-                        long idProducto = Convert.ToInt64(row.Cells[0].Value);
-                        int cantidad = Convert.ToInt32(row.Cells[3].Value);
-                        double precioVenta = Convert.ToDouble(row.Cells[2].Value);
+        //        foreach (DataGridViewRow row in tablaResumenVenta.Rows)
+        //        {
+        //            if (row.Cells[0].Value != null)
+        //            {
+        //                long idProducto = Convert.ToInt64(row.Cells[0].Value);
+        //                int cantidad = Convert.ToInt32(row.Cells[3].Value);
+        //                double precioVenta = Convert.ToDouble(row.Cells[2].Value);
 
-                        comandoDetalle.Parameters.Clear();
-                        comandoStock.Parameters.Clear();
+        //                comandoDetalle.Parameters.Clear();
+        //                comandoStock.Parameters.Clear();
 
-                        comandoDetalle.Parameters.AddWithValue("@fkProducto", idProducto);
-                        comandoDetalle.Parameters.AddWithValue("@cantidad", cantidad);
-                        comandoDetalle.Parameters.AddWithValue("@precioVenta", precioVenta);
+        //                comandoDetalle.Parameters.AddWithValue("@fkProducto", idProducto);
+        //                comandoDetalle.Parameters.AddWithValue("@cantidad", cantidad);
+        //                comandoDetalle.Parameters.AddWithValue("@precioVenta", precioVenta);
 
-                        comandoDetalle.ExecuteNonQuery();
+        //                comandoDetalle.ExecuteNonQuery();
 
-                        comandoStock.Parameters.AddWithValue("@cantidad", cantidad);
-                        comandoStock.Parameters.AddWithValue("@idProducto", idProducto);
+        //                comandoStock.Parameters.AddWithValue("@cantidad", cantidad);
+        //                comandoStock.Parameters.AddWithValue("@idProducto", idProducto);
 
-                        comandoStock.ExecuteNonQuery();
+        //                comandoStock.ExecuteNonQuery();
 
-                    }
-                }
+        //            }
+        //        }
 
-                MessageBox.Show("Venta Realizada");
+        //        MessageBox.Show("Venta Realizada");
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al Vender | Error: " + ex.ToString());
-            }
-            finally
-            {
-                objetoConexion.CerrarConexion();
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("Error al Vender | Error: " + ex.ToString());
+        //    }
+        //    finally
+        //    {
+        //        objetoConexion.CerrarConexion();
+        //    }
+        //}
         public void RealizarVentaV2(DataGridView tablaResumenVenta, long idFactura)
         {
             if (idFactura == -1) return; // Si hubo un error en la factura, no continuamos
@@ -471,10 +483,6 @@ namespace MiPOSCSharpMySQL.Controlador
                 MessageBox.Show("Error al realizar la venta: " + ex.Message);
             }
         }
-
-
-        /*---------------------------------------------------------------*/
-
         public void MostrarUltimaFactura(Label ultimaFactura)
         {
 
