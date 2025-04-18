@@ -2,8 +2,6 @@ Un sistema de punto de venta, enfocada en un uso para colmados.
 En su creación el cliente exigió simplicidad en diseño y con una curva de aprendizaje leve.
 Diseño Compacto y de pantalla completa para enfatizar su completa concentracion.
 
-![Screenshot 2025-04-05 222730](https://github.com/user-attachments/assets/2f8eb663-a312-461f-a9cc-13432834483e)
-
 ________________________________________________________________________________________________________________________________________________
 
 ![Screenshot 2025-04-05 223529](https://github.com/user-attachments/assets/61f7dd96-5a55-4d52-89c0-c56e128bb3e3)
